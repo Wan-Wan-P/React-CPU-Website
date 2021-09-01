@@ -1,25 +1,46 @@
-import logo from './logo.svg';
+
 import './App.css';
+import logo from './logo.svg';
+import ListCpu from "./component/ListCpu";
+import CpuFormUpdate from "./component/CpuFormUpdate";
+import CpuFormCreate from "./component/CpuFormCreate";
+import React from "react";
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Link
+} from "react-router-dom";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <Router>
+            <div>
+                <nav>
+                    <ul>
+                        <li>
+                            <Link to="/">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/createCpu">Create Cpu</Link>
+                        </li>
+                    </ul>
+                </nav>
+
+                <switch>
+                    <Route path="/updateCpu/:id" exact={true}>
+                        <CpuFormUpdate />
+                    </Route>
+                    <Route path="/createCpu" exact={true}>
+                        <CpuFormCreate />
+                    </Route>
+                    <Route path="/" exact={true}>
+                        <ListCpu />
+                    </Route>
+                </switch>
+            </div>
+        </Router>
+    );
 }
 
 export default App;
