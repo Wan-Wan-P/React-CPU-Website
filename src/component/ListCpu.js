@@ -19,6 +19,10 @@ class ListCpu extends Component {
     }
 
     componentDidMount() {
+        this.getCpuList()
+    }
+
+    getCpuList() {
         fetch(`http://localhost:8080/api/v1/cpus`, {
             method: "GET"
         }).then(response => response.json()).then(response => {
@@ -31,14 +35,14 @@ class ListCpu extends Component {
     }
 
     handleDelete(id) {
-        // eslint-disable-next-line no-restricted-globals
-        if(confirm("Are you sure?")) {
+        if (window.confirm("Are you sure?")) {
             fetch(`http://localhost:8080/api/v1/cpus/${id}`, {
                 method: 'DELETE'
             }).then(response => response.json()
             ).then(response => {
                 if (response.result) {
                     alert("CPU deleted.")
+                    this.getCpuList()
                 }
             })
         }
@@ -47,7 +51,7 @@ class ListCpu extends Component {
     render() {
         return (
             <div>
-                <table>
+                <table className={"table table-striped"}>
                     {this.state.data.map(item => {
                         return (<tr key={item.id}>
                             <td><Link to={`/updateCpu/${item.id}`}>{item.id}</Link></td>
@@ -56,7 +60,13 @@ class ListCpu extends Component {
                             <td>{item.speed}</td>
                             <td>{item.status}</td>
                             <td>{item.description}</td>
-                            <td><a href={"http://localhost:3000/"} onClick={() => this.handleDelete(item.id)}>Delete</a></td>
+                            <td><a
+                                href={"#"}
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    this.handleDelete(item.id)
+                                }
+                                }>Delete</a></td>
                         </tr>)
                     })}
                 </table>

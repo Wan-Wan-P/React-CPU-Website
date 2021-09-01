@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {withRouter} from "react-router-dom";
+import { isEmptyObject } from '../util/helper.js';
 
 class CpuFormUpdate extends Component {
     constructor(props) {
@@ -13,43 +14,24 @@ class CpuFormUpdate extends Component {
                 status: "",
                 description: ""
             },
+            errors: {
+                label: "",
+                price: "",
+                speed: "",
+                description: ""
+            }
         }
     }
 
-    handleLabelChange = (event) => {
+    handleInputChange = (event) => {
+        const {name, value} = event.target
         this.setState({
-            formData: {
-                ...this.state.formData,
-                label: event.target.value,
+                formData: {
+                    ...this.state.formData,
+                    [name]: value,
+                }
             }
-        })
-    }
-
-    handlePriceChange = (event) => {
-        this.setState({
-            formData: {
-                ...this.state.formData,
-                price: event.target.value,
-            }
-        })
-    }
-
-    handleSpeedChange = (event) => {
-        this.setState({
-            formData: {
-                ...this.state.formData,
-                speed: event.target.value,
-            }
-        })
-    }
-
-    handleDescriptionChange = (event) => {
-        this.setState({
-            formData: {
-            ...this.state.formData,
-            description: event.target.value,
-            }
-        })
+        )
     }
 
     componentDidMount() {
@@ -68,35 +50,77 @@ class CpuFormUpdate extends Component {
 
     handleSubmit = (event) => {
         event.preventDefault();
-        fetch(`http://localhost:8080/api/v1/cpus/${this.props.match.params.id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body:JSON.stringify(this.state.formData)
-        }).then(response => response.json()
-        ).then(response => {
-            console.log('Success', response)
-            alert("Updated successfully.")
-            window.location.replace("http://localhost:3000/")
-        }).catch((error) =>{
-            console.error('Error:', error);
-        })
+        let errors = this.validateForm()
+        if (isEmptyObject(errors)) {
+            fetch(`http://localhost:8080/api/v1/cpus/${this.props.match.params.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(this.state.formData)
+            }).then(response => {
+                console.log(response)
+                if (!response.ok) {
+                    if (response.status == 400) {
+                        throw "Bad request"
+                    } else {
+                        throw "Internal server error"
+                    }
+                } else {
+                    return response.json()
+                }
+            }).then(response => {
+                alert("Cpu updated")
+                this.props.history.push("/")
+            }).catch(error => {
+                this.setState({
+                    response: error
+                })
+            })
+        }
+        else {
+            this.setState({
+                errors: errors
+            })
+        }
+    }
+
+    validateForm = () => {
+        let errors = {}
+        if (this.state.formData.label.trim() == "") {
+            errors.label = "Label is required"
+        }
+        if (this.state.formData.price == "" ) {
+            errors.price = "Price is required"
+            // else if (type(this.state.formData.price) === ‘integer’)
+        }
+        if (this.state.formData.speed.trim() == "") {
+            errors.speed = "Speed is required"
+        }
+        return errors
     }
 
     render() {
         return (
-            <form>
+            <form className={"px-2"}>
                 <h2>Update Cpu</h2>
-                <div>
-                    <label>Label</label>
-                    <input type={"text"} name={"label"} value={this.state.formData.label} onChange={this.handleLabelChange}></input>
-                    <label>Price</label>
-                    <input type={"text"} name={"price"} value={this.state.formData.price} onChange={this.handlePriceChange}></input>
-                    <label>Speed</label>
-                    <input type={"text"} name={"speed"} value={this.state.formData.speed} onChange={this.handleSpeedChange}></input>
-                    <label>Description</label>
-                    <input type={"text"} name={"description"} value={this.state.formData.description} onChange={this.handleDescriptionChange}></input>
+                <div className={"mb-3"}>
+                    <label className={"form-label"}>Label</label>
+                    <input  className={"form-control"} type={"text"} name={"label"} value={this.state.formData.label}
+                           onChange={this.handleInputChange}></input>
+                    <div className={"text-danger"}>{this.state.errors.label}</div>
+                    <label className={"form-label"}>Price</label>
+                    <input className={"form-control"} type={"text"} name={"price"} value={this.state.formData.price}
+                           onChange={this.handleInputChange}></input>
+                    <div className={"text-danger"}>{this.state.errors.price}</div>
+                    <label className={"form-label"}>Speed</label>
+                    <input className={"form-control"} type={"text"} name={"speed"} value={this.state.formData.speed}
+                           onChange={this.handleInputChange}></input>
+                    <div className={"text-danger"}>{this.state.errors.speed}</div>
+                    <label className={"form-label"}>Description</label>
+                    <input className={"form-control"} type={"text"} name={"description"} value={this.state.formData.description}
+                           onChange={this.handleInputChange}></input>
+                    <div className={"text-danger"}>{this.state.errors.description}</div>
                 </div>
                 <button type="submit" onClick={this.handleSubmit}>Submit</button>
             </form>

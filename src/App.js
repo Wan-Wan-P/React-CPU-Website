@@ -1,16 +1,18 @@
-
+import React from "react";
 import './App.css';
 import logo from './logo.svg';
-import ListCpu from "./component/ListCpu";
-import CpuFormUpdate from "./component/CpuFormUpdate";
-import CpuFormCreate from "./component/CpuFormCreate";
-import React from "react";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import {
     BrowserRouter as Router,
     Switch,
     Route,
     Link
 } from "react-router-dom";
+
+import ListCpu from "./component/ListCpu";
+import CpuFormUpdate from "./component/CpuFormUpdate";
+import CpuFormCreate from "./component/CpuFormCreate";
 
 function App() {
     return (
